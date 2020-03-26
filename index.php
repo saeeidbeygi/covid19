@@ -76,7 +76,7 @@ $message = preg_replace('/\s\s+/', ' ', $text);
 
 
 //buat membagi pesan menjadi 3 bagian
-$command = explode(' ',$message,3);
+$command = explode(' ',$message,2);
 //ambil bagian pesan yang pertama
 switch($command[0]) {
         case '/info':
