@@ -14,9 +14,12 @@ function hapus($string){
 function info_indonesia(){
   $data = file_get_contents('https://api.kawalcorona.com/indonesia/');
   $data = json_decode($data, True);
-  $hasil  = "positif corona : ".$data[0]['positif']."\n";
-  $hasil .= "pasien sembuh : ".$data[0]['sembuh']."\n";
-  $hasil .= "pasien meninggal : ".$data[0]['meninggal'];
+
+  $hasil  = "🇮🇩*INDONESIA*🇮🇩 \n";
+  $hasil .= "*Positif Corona:* ".$data[0]['positif']."\n";
+  $hasil .= "*Sembuh :* ".$data[0]['sembuh']."\n";
+  $hasil .= "*Meninggal :* ".$data[0]['meninggal']."\n";
+  $hasil .= date("d-m-y");
   return $hasil;
 }
 
@@ -35,6 +38,18 @@ function info_prov($provinsi){
       return $hasil;
     }
   }
+}
+
+function all_prov(){
+  $data = file_get_contents('https://api.kawalcorona.com/indonesia/provinsi/');
+  $data = json_decode($data, true);
+  foreach($data as $row){
+    $hasil .= "*".$row['attributes']['Provinsi']."* \n";
+    $hasil .= "``` Terkonfirmasi:".$row['attributes']['Kasus_Posi']."\n";
+    $hasil .= " Sembuh: ".$row['attributes']['Kasus_Semb']."\n";
+    $hasil .= " Meninggal: ".$row['attributes']['Kasus_Meni']."``` \n\n";
+  }
+  return $hasil;
 }
 
 
@@ -59,28 +74,37 @@ $usernameorang   = $message['message']['reply_to_message']['from']['username'];
 //buat hapus kelebihan spasi
 $message = preg_replace('/\s\s+/', ' ', $text);
 
+
 //buat membagi pesan menjadi 3 bagian
 $command = explode(' ',$message,3);
 //ambil bagian pesan yang pertama
 switch($command[0]) {
         case '/info':
-          $hasil = info_indonesia();
-          sendMessage($chat_id,$hasil);
+          $pesan = info_indonesia();
+          sendMessage($chat_id, $pesan);
         break;
 
         case '/provinsi':
           $provinsi = $command[1];
-          $hasil    = info_prov($provinsi);
-          sendMessage($chat_id,$hasil);
+          $pesan    = info_prov($provinsi);
+          sendMessage($chat_id, $pesan);
         break;
 
-        case '/whoami':
-          $hasil="saya bot";
-          sendMessage($chat_id,$hasil);
+        case '/all':
+          $pesan = all_prov();
+          sendMessage($chat_id, $pesan);
+        break;
+
+        case '/help':
+          $hasil  = "*/info* - informasi status indonesia\n";
+          $hasil .= "*/provinsi* {nama provinsi} - mencari info berdasarkan provinsi\n";
+          $hasil .= "*/all* - menampilkan semua info provinsi\n";
+          $hasil .= "*/help* - informasi bantuan bot \n#StayAtHome";
+          sendMessage($chat_id, $hasil);
         break;
 }
 
 function sendMessage($chat_id, $message) {
-  file_get_contents($GLOBALS['api'] . '/sendMessage?chat_id=' . $chat_id . '&text=' . urlencode($message) . '&parse_mode=html');
+  file_get_contents($GLOBALS['api'] . '/sendMessage?chat_id=' . $chat_id . '&text=' . urlencode($message) . '&parse_mode=markdown');
 }
 ?>
